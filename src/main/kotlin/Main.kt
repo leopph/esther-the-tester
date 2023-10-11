@@ -1,3 +1,3 @@
 fun main() {
-    println("Hello, World!")
+    TestRunner(MyTestClass::class.java).doTest()
 }

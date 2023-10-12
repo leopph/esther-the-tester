@@ -23,12 +23,14 @@ class TestRunner(private val clazz: Class<*>) {
         }
 
         val testMethods = clazz.methods.filter {
-            !Modifier.isStatic(it.modifiers) && Test() in it.annotations && Skip() !in it.annotations
+            !Modifier.isStatic(it.modifiers) && it.returnType.isAssignableFrom(Boolean::class.java) && Test() in it.annotations && Skip() !in it.annotations
         }
 
         for (beforeClassMethod in beforeClassMethods) {
             beforeClassMethod.invoke(null)
         }
+
+        var ret = true
 
         for (testMethod in testMethods) {
             val instance = clazz.getConstructor().newInstance()
@@ -37,7 +39,11 @@ class TestRunner(private val clazz: Class<*>) {
                 beforeTestMethod.invoke(instance)
             }
 
-            testMethod.invoke(instance)
+            val testRet = testMethod.invoke(instance) as Boolean
+
+            println("Test ${testMethod.name} " + (if (testRet) "was successful" else "failed") + ".")
+
+            ret = ret && testRet
 
             for (afterTestMethod in afterTestMethods) {
                 afterTestMethod.invoke(instance)
@@ -48,6 +54,6 @@ class TestRunner(private val clazz: Class<*>) {
             afterClassMethod.invoke(null)
         }
 
-        return true
+        return ret
     }
 }

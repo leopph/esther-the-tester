@@ -1,5 +1,5 @@
 @TestCase
-public class MyTestClass {
+public class MyPassingTestClass {
     @BeforeClass
     public static void beforeClass() {
         System.out.println("before class");
@@ -11,13 +11,15 @@ public class MyTestClass {
     }
 
     @Test
-    public void test() {
-        System.out.println("test");
+    public boolean passingTest() {
+        System.out.println("passing test");
+        return true;
     }
 
     @Test @Skip
-    public void skippedTest() {
+    public boolean skippedTest() {
         System.out.println("skipped test");
+        return true;
     }
 
     @After

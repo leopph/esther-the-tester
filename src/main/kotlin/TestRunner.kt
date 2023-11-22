@@ -41,7 +41,7 @@ class TestRunner(private val clazz: Class<*>) {
 
             val testRet = testMethod.invoke(instance) as Boolean
 
-            println("Test ${testMethod.name} " + (if (testRet) "was successful" else "failed") + ".")
+            println("Test [${testMethod.name}] " + (if (testRet) "was successful" else "failed") + ".")
 
             ret = ret && testRet
 

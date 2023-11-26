@@ -1,5 +1,6 @@
 package esther
 
+import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Modifier
 
 class TestRunner(private val clazz: Class<*>) {
@@ -53,7 +54,11 @@ class TestRunner(private val clazz: Class<*>) {
                 testMethod.invoke(instance)
                 successCount += 1
                 print("ok")
-            } catch (e: EstherAssertionFailed) {
+            } catch (e: InvocationTargetException) {
+                if (e.targetException !is EstherAssertionFailed) {
+                    throw e
+                }
+
                 failCount += 1
                 print("failed")
             }

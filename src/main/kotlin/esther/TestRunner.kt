@@ -1,9 +1,11 @@
+package esther
+
 import java.lang.reflect.Modifier
 
 class TestRunner(private val clazz: Class<*>) {
-    fun doTest(): Boolean {
+    fun doTest() {
         if (TestCase() !in clazz.annotations) {
-            return false
+            return
         }
 
         val beforeClassMethods = clazz.methods.filter {
@@ -23,14 +25,21 @@ class TestRunner(private val clazz: Class<*>) {
         }
 
         val testMethods = clazz.methods.filter {
-            !Modifier.isStatic(it.modifiers) && it.returnType.isAssignableFrom(Boolean::class.java) && Test() in it.annotations && Skip() !in it.annotations
+            !Modifier.isStatic(it.modifiers) && Test() in it.annotations && Skip() !in it.annotations
         }
+
+        val skippedCount = clazz.methods.count {
+            !Modifier.isStatic(it.modifiers) && Test() in it.annotations && Skip() in it.annotations
+        }
+
+        var successCount = 0
+        var failCount = 0
+
+        println("Running ${testMethods.size} test(s).")
 
         for (beforeClassMethod in beforeClassMethods) {
             beforeClassMethod.invoke(null)
         }
-
-        var ret = true
 
         for (testMethod in testMethods) {
             val instance = clazz.getConstructor().newInstance()
@@ -39,11 +48,17 @@ class TestRunner(private val clazz: Class<*>) {
                 beforeTestMethod.invoke(instance)
             }
 
-            val testRet = testMethod.invoke(instance) as Boolean
+            try {
+                print("Test ${testMethod.name}... ")
+                testMethod.invoke(instance)
+                successCount += 1
+                print("ok")
+            } catch (e: EstherAssertionFailed) {
+                failCount += 1
+                print("failed")
+            }
 
-            println("Test [${testMethod.name}] " + (if (testRet) "was successful" else "failed") + ".")
-
-            ret = ret && testRet
+            println(".")
 
             for (afterTestMethod in afterTestMethods) {
                 afterTestMethod.invoke(instance)
@@ -54,6 +69,6 @@ class TestRunner(private val clazz: Class<*>) {
             afterClassMethod.invoke(null)
         }
 
-        return ret
+        println("Tests finished: $successCount ok, $failCount failed, $skippedCount skipped.")
     }
 }

@@ -1,7 +1,15 @@
+import esther.Test;
+import esther.TestCase;
+
+import static esther.AssertionsKt.assertTrue;
+
+@TestCase
 public class MyFailingTestClass {
+    public boolean testSuccess = false;
+
     @Test
-    public boolean failingTest() {
-        System.out.println("failing test");
-        return false;
+    public void failingTest() {
+        assertTrue(false);
+        testSuccess = true;
     }
 }

@@ -1,3 +1,5 @@
+package esther
+
 @Target(AnnotationTarget.CLASS)
 annotation class TestCase
 @Target(AnnotationTarget.FUNCTION)
